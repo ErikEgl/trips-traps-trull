@@ -868,7 +868,7 @@ export default function App() {
                 <div>
                   <label className="text-xs font-bold uppercase text-white/60 mb-2 block">{t.changeOpponent}</label>
                   <div className="flex gap-2">
-                    {(['human', 'bot', 'online'] as const).map(o => (
+                    {(['human', 'bot' /*, 'online'*/] as const).map(o => (
                       <button 
                         key={o} 
                         onClick={() => {
