@@ -17,8 +17,12 @@ import {
   LucideTurtle, LucideFish
 } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
-import { CATEGORIES, DIRECTION_SETS, ItemInfo, UI_STRINGS, CategoryType, DirectionSetType, CREDENTIALS, LOGO_URL } from './constants';
-import logo from './assets/logo.jpg';
+import { CATEGORIES, DIRECTION_SETS, ItemInfo, UI_STRINGS, CategoryType, DirectionSetType, CREDENTIALS } from './constants';
+import { LogoIcon } from './components/icons/LogoIcon';
+import { BuyMeACoffeeIcon } from './components/icons/BuyMeACoffeeIcon';
+import { HedgehogIcon, SquirrelIcon, MooseIcon, DeerIcon, WolfIcon, FoxIcon } from './components/icons/AnimalIcons';
+import { PearIcon, BlueberryIcon, PlumIcon, PotatoIcon, CabbageIcon, CucumberIcon, TomatoIcon, BellPepperIcon } from './components/icons/FoodIcons';
+import { GoogleX, IconAAA, GoogleO } from './components/icons/UtilityIcons';
 
 type Player = 'X' | 'O';
 type Language = 'est' | 'eng' | 'rus';
@@ -49,151 +53,6 @@ interface GameState {
   directionSet: DirectionSetType;
   fontSize: 'standard' | 'large' | 'extra-large';
 }
-
-const GoogleX = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 6L6 18M6 6l12 12" />
-  </svg>
-);
-
-const IconAAA = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="M2 18l3-9 3 9M3.5 15h3M10 18l2.5-7 2.5 7M11.2 15h2.6M18 18l2-5 2 5M19 16h2" />
-  </svg>
-);
-
-const GoogleO = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="4">
-    <circle cx="12" cy="12" r="9" />
-  </svg>
-);
-
-const HedgehogIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 18c0-4 4-7 8-7s8 3 8 7" />
-    <path d="M12 11l-2-4M12 11l2-4M8 12l-3-3M16 12l3-3M10 11l-1-5M14 11l1-5" />
-    <circle cx="18" cy="18" r="1" fill="currentColor" />
-    <path d="M20 18h2" />
-  </svg>
-);
-
-const SquirrelIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 6a4 4 0 0 0-4 4c0 3 2 3 2 6a4 4 0 0 1-4 4H6" />
-    <path d="M16 16c-2 0-4-1-4-3s2-3 4-3" />
-    <circle cx="10" cy="8" r="1" fill="currentColor" />
-    <path d="M8 10v4" />
-  </svg>
-);
-
-const MooseIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 12v8M8 20h8" />
-    <path d="M12 12L7 7M12 12l5-5" />
-    <path d="M7 7c-2 0-3 1-3 3M17 7c2 0 3 1 3 3" />
-    <path d="M5 7l-2-2M19 7l2-2M6 8l-1-3M18 8l1-3" />
-    <circle cx="12" cy="14" r="2" />
-  </svg>
-);
-
-const DeerIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 14v6M9 20h6" />
-    <path d="M12 14l-4-4M12 14l4-4" />
-    <path d="M8 10l-2-3M16 10l2-3M7 9l-1-2M17 9l1-2" />
-    <circle cx="12" cy="12" r="2" />
-  </svg>
-);
-
-const WolfIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 14l-4-4 2-6 2 2 2-2 2 6-4 4z" />
-    <path d="M8 10l-3-2M16 10l3-2" />
-    <path d="M10 18l2 2 2-2" />
-  </svg>
-);
-
-const FoxIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 14l-6-4 2-5 4 2 4-2 2 5-6 4z" />
-    <path d="M18 14c2 0 3 2 3 4s-2 2-4 2-4-2-4-4" />
-    <circle cx="10" cy="11" r="1" fill="currentColor" />
-    <circle cx="14" cy="11" r="1" fill="currentColor" />
-  </svg>
-);
-
-const PearIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 21a6 6 0 0 0 6-6c0-3-2-4-3-7a3 3 0 0 0-6 0c-1 3-3 4-3 7a6 6 0 0 0 6 6z" />
-    <path d="M12 5V3" />
-  </svg>
-);
-
-const BlueberryIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="13" r="8" />
-    <path d="M12 5l-2-2M12 5l2-2M10 5l1-2M14 5l-1-2" />
-  </svg>
-);
-
-const PlumIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 21a7 7 0 1 0 0-14 7 7 0 0 0 0 14z" />
-    <path d="M12 7v4" />
-    <path d="M12 5V3" />
-  </svg>
-);
-
-const PotatoIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 21c-5 0-8-3-8-8s3-8 8-8 8 3 8 8-3 8-8 8z" />
-    <circle cx="8" cy="10" r="0.5" fill="currentColor" />
-    <circle cx="15" cy="12" r="0.5" fill="currentColor" />
-    <circle cx="10" cy="16" r="0.5" fill="currentColor" />
-  </svg>
-);
-
-const CabbageIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="9" />
-    <path d="M12 3c-3 0-6 3-6 9s3 9 6 9M12 3c3 0 6 3 6 9s-3 9-6 9" />
-    <path d="M3 12h18" />
-  </svg>
-);
-
-const CucumberIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="4" y="8" width="16" height="8" rx="4" transform="rotate(-15 12 12)" />
-    <circle cx="8" cy="11" r="0.5" fill="currentColor" />
-    <circle cx="12" cy="12" r="0.5" fill="currentColor" />
-    <circle cx="16" cy="13" r="0.5" fill="currentColor" />
-  </svg>
-);
-
-const TomatoIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="13" r="8" />
-    <path d="M12 5V3M10 4l4 2M14 4l-4 2" />
-  </svg>
-);
-
-const BellPepperIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7 21h10a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z" />
-    <path d="M12 6V3" />
-    <path d="M9 6c0-1 1-2 3-2s3 1 3 2" />
-  </svg>
-);
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Circle: LucideCircle,
@@ -812,15 +671,8 @@ export default function App() {
       {/* Google-Style Header */}
       <header className="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-10">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-[#1a1a1a] rounded-2xl shadow-md border border-white/20 flex items-center justify-center text-white overflow-hidden">
-            <img 
-              src={logo} 
-              alt="Logo" 
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = LOGO_URL;
-              }}
-            />
+          <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-white/20 flex items-center justify-center text-white overflow-hidden">
+            <LogoIcon className="w-full h-full" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-2xl font-medium tracking-tight text-white">
@@ -882,6 +734,16 @@ export default function App() {
               >
                 <LucideSettings size={22} />
               </button>
+            </Tooltip>
+            <Tooltip text={t.buyMeACoffee}>
+              <a 
+                href="https://buymeacoffee.com/Erikegliens" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-[#FFDD00] hover:bg-[#FFDD00]/90 rounded-full transition-all text-black shadow-sm hover:scale-110"
+              >
+                <BuyMeACoffeeIcon className="scale-75" />
+              </a>
             </Tooltip>
             <Tooltip text={t.newGame} position="right">
               <button onClick={resetGame} className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white">
@@ -1272,13 +1134,7 @@ export default function App() {
               >
                 {/* Recent move highlight */}
                 {gameState.moves.length > 0 && gameState.moves[gameState.moves.length - 1].r === r && gameState.moves[gameState.moves.length - 1].c === c && (
-                  <motion.div 
-                    layoutId="recent-move"
-                    className="absolute inset-0 border-4 border-white/50 z-20 rounded-2xl pointer-events-none"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: [0, 1, 0] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
+                  <div className="absolute inset-0 border-4 border-white/30 z-20 rounded-2xl pointer-events-none" />
                 )}
 
                 {showHints && (
@@ -1322,11 +1178,11 @@ export default function App() {
                       }}
                       className="flex flex-col items-center z-10"
                     >
-                      <div className="bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-[0_10px_20px_rgba(0,0,0,0.2)] mb-1 border-2 border-white/20">
+                      <div className="w-[66px] h-[66px] md:w-[98px] md:h-[98px] bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.2)] border-2 border-white/20">
                         {cell.player === 'X' ? (
-                          <GoogleX className="w-12 h-12 md:w-14 md:h-14 text-[#007AFF] drop-shadow-[0_2px_4px_rgba(0,122,255,0.3)]" />
+                          <GoogleX className="w-8 h-8 md:w-12 md:h-12 text-[#007AFF] drop-shadow-[0_2px_4px_rgba(0,122,255,0.3)]" />
                         ) : (
-                          <GoogleO className="w-12 h-12 md:w-14 md:h-14 text-[#FF3B30] drop-shadow-[0_2px_4px_rgba(255,59,48,0.3)]" />
+                          <GoogleO className="w-8 h-8 md:w-12 md:h-12 text-[#FF3B30] drop-shadow-[0_2px_4px_rgba(255,59,48,0.3)]" />
                         )}
                       </div>
                       {showHints && (
@@ -1605,7 +1461,27 @@ export default function App() {
       </div>
 
       {/* Footer / Credentials */}
-      <footer className="mt-12 w-full max-w-4xl border-t border-[#DADCE0] pt-8 pb-12 flex flex-col items-center gap-4">
+      <footer className="mt-12 w-full max-w-4xl border-t border-[#DADCE0] pt-8 pb-12 flex flex-col items-center gap-6">
+        <div className="flex flex-wrap justify-center gap-4">
+          <a 
+            href="https://buymeacoffee.com/Erikegliens" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="donate-btn-bmc cookie-regular scale-75 md:scale-90 origin-center"
+          >
+            <BuyMeACoffeeIcon className="mt-1" />
+            <span>Buy me a coffee</span>
+          </a>
+          <a 
+            href="https://paypal.me/Erikegliens" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="donate-btn text-white/70 hover:text-white hover:bg-white/10 transition-all"
+          >
+            <LucideMail size={14} />
+            <span>PayPal</span>
+          </a>
+        </div>
         <div className="flex gap-6">
           {CREDENTIALS.map(c => (
             <a key={c.name} href={c.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-[#5F6368] hover:text-[#007AFF] transition-colors">

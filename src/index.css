@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Cookie&display=swap');
 @import "tailwindcss";
 
 @layer base {
@@ -37,5 +38,44 @@
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
+  }
+
+  /* Donation Button Styles */
+  .cookie-regular {
+    font-family: "Cookie", cursive;
+    font-weight: 400;
+    font-style: normal;
+  }
+  .donate-btn-bmc {
+    height: 60px;
+    border-radius: 12px;
+    background-color: #ffdd00;
+    color: #000000;
+    font-size: 32px;
+    border: none;
+    padding: 0 24px;
+    font-family: "Cookie", "Roboto", "Segoe UI", sans-serif;
+    line-height: 33px;
+    font-weight: 400;
+    text-decoration: none;
+    box-shadow: 0 8px 18px rgba(13, 12, 34, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+  }
+  .donate-btn-bmc:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(13, 12, 34, 0.3);
+  }
+  .donate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 0.75rem;
   }
 }

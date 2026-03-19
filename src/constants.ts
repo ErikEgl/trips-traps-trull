@@ -270,6 +270,7 @@ export const UI_STRINGS = {
     defaultSize: 'Tavasuurus',
     changeOpponent: 'Muuda vastast',
     newGame: 'Uus mäng',
+    buyMeACoffee: 'Toeta kohviga',
     start: 'Alusta mängu!',
     name: 'Nimi',
     showHints: 'Näita vihjeid',
@@ -447,6 +448,7 @@ export const UI_STRINGS = {
     standard: 'Standard',
     limit3: '3-Limit (Max 3)',
     online: 'Play Online',
+    buyMeACoffee: 'Buy me a coffee',
     resetToDefault: 'Reset to Defaults',
     defaultSize: 'Default Size',
     changeOpponent: 'Change Opponent',
@@ -632,6 +634,7 @@ export const UI_STRINGS = {
     defaultSize: 'Размер по умолчанию',
     changeOpponent: 'Выбор противника',
     newGame: 'Новая игра',
+    buyMeACoffee: 'Купи мне кофе',
     start: 'Поехали!',
     name: 'Имя',
     showHints: 'Показывать подсказки',
@@ -788,5 +791,3 @@ export const CREDENTIALS = [
   { name: 'Telegram', url: 'https://t.me/erikegliens' },
   { name: 'GitHub', url: 'https://github.com/ErikEgl/' },
 ];
-
-export const LOGO_URL = 'https://picsum.photos/seed/estonia-logo/200/200';
