@@ -1472,15 +1472,6 @@ export default function App() {
             <BuyMeACoffeeIcon className="mt-1" />
             <span>Buy me a coffee</span>
           </a>
-          <a 
-            href="https://paypal.me/Erikegliens" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="donate-btn text-white/70 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <LucideMail size={14} />
-            <span>PayPal</span>
-          </a>
         </div>
         <div className="flex gap-6">
           {CREDENTIALS.map(c => (
