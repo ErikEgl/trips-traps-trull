@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LucideTrophy, LucideRotateCcw, LucideSettings, LucideInfo, 
-  LucideGamepad2, LucideUser, LucideBot, LucideGlobe, 
+  LucideGamepad2, LucideUser, LucideUsers, LucideBot, LucideGlobe, 
   LucideCopy, LucideCheck, LucideLanguages, LucideChevronDown,
   LucideX, LucideCircle, LucideGrid3X3, LucideHelpCircle,
+  LucideRefreshCcw, LucideBrain, LucideCompass, LucideLayers,
+  LucideGraduationCap, LucideMail,
   // New icons for categories
   LucideMoon, LucideFlame, LucideCloudRain, LucideSun, LucideLeaf, 
   LucideMountain, LucideCloud, LucideHeart, LucideZap, LucideSandwich, 
@@ -16,6 +18,7 @@ import {
 } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
 import { CATEGORIES, DIRECTION_SETS, ItemInfo, UI_STRINGS, CategoryType, DirectionSetType, CREDENTIALS, LOGO_URL } from './constants';
+import logo from './assets/logo.jpg';
 
 type Player = 'X' | 'O';
 type Language = 'est' | 'eng' | 'rus';
@@ -44,11 +47,28 @@ interface GameState {
   winningLine: number[][] | null;
   isBotThinking: boolean;
   directionSet: DirectionSetType;
+  fontSize: 'standard' | 'large' | 'extra-large';
 }
 
 const GoogleX = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
     <path d="M18 6L6 18M6 6l12 12" />
+  </svg>
+);
+
+const IconAAA = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M2 18l3-9 3 9M3.5 15h3M10 18l2.5-7 2.5 7M11.2 15h2.6M18 18l2-5 2 5M19 16h2" />
   </svg>
 );
 
@@ -246,16 +266,16 @@ const ItemRenderer = ({ item, className, showLabel }: { item: ItemInfo, classNam
         <div className="w-full h-full rounded-xl shadow-inner" style={{ backgroundColor: item.hex }} />
       ) : null}
       {showLabel && (
-        <span className="text-[10px] font-bold uppercase mt-1 text-white/80">{item.eesti}</span>
+        <span className="text-[0.625rem] font-bold uppercase mt-1 text-white/80">{item.eesti}</span>
       )}
     </div>
   );
 };
 
-const Tooltip = ({ text, children }: { text: string, children: React.ReactNode }) => {
+const Tooltip = ({ text, children, position = 'center' }: { text: string, children: React.ReactNode, position?: 'center' | 'right' }) => {
   const [show, setShow] = useState(false);
   return (
-    <div className="relative flex items-center" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+    <div className="relative flex items-center" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)} onClick={() => setShow(!show)}>
       {children}
       <AnimatePresence>
         {show && (
@@ -263,7 +283,7 @@ const Tooltip = ({ text, children }: { text: string, children: React.ReactNode }
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#141414] text-white text-[10px] uppercase tracking-widest whitespace-nowrap z-50 rounded pointer-events-none"
+            className={`absolute bottom-full mb-2 px-2 py-1 bg-[#141414] text-white text-[0.625rem] uppercase tracking-widest z-50 rounded pointer-events-none w-max max-w-[200px] text-center whitespace-normal break-words ${position === 'right' ? 'right-0' : 'left-1/2 -translate-x-1/2'}`}
           >
             {text}
           </motion.div>
@@ -273,44 +293,55 @@ const Tooltip = ({ text, children }: { text: string, children: React.ReactNode }
   );
 };
 
-const WavyBackground = ({ colors }: { colors: string[] }) => {
-  const displayColors = colors.length > 0 ? colors : ['#FF0000', '#00FF00', '#0000FF', '#FFFF00'];
+const AtmosphericBackground = () => {
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#050505]">
+      {/* Red Blob - Top Left */}
       <motion.div
         animate={{
-          background: [
-            `radial-gradient(circle at 10% 10%, ${displayColors[0]}66 0%, transparent 80%)`,
-            `radial-gradient(circle at 90% 90%, ${displayColors[1 % displayColors.length]}66 0%, transparent 80%)`,
-            `radial-gradient(circle at 10% 90%, ${displayColors[2 % displayColors.length]}66 0%, transparent 80%)`,
-            `radial-gradient(circle at 90% 10%, ${displayColors[3 % displayColors.length]}66 0%, transparent 80%)`,
-            `radial-gradient(circle at 50% 50%, ${displayColors[4 % displayColors.length] || displayColors[0]}66 0%, transparent 80%)`,
-          ],
+          scale: [1, 1.2, 1],
+          x: [0, 30, 0],
+          y: [0, 20, 0],
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-0 opacity-80"
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-red-500/10 blur-[100px]"
       />
-      <svg className="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <motion.path
-          d="M0 50 Q 25 40 50 50 T 100 50 V 100 H 0 Z"
-          fill="url(#gradient)"
-          animate={{
-            d: [
-              "M0 50 Q 25 40 50 50 T 100 50 V 100 H 0 Z",
-              "M0 50 Q 25 60 50 50 T 100 50 V 100 H 0 Z",
-              "M0 50 Q 25 40 50 50 T 100 50 V 100 H 0 Z",
-            ]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <defs>
-          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            {displayColors.slice(0, 6).map((c, i) => (
-              <stop key={i} offset={`${(i / (Math.min(displayColors.length, 6) - 1)) * 100}%`} stopColor={c} />
-            ))}
-          </linearGradient>
-        </defs>
-      </svg>
+      {/* Green Blob - Top Right */}
+      <motion.div
+        animate={{
+          scale: [1.2, 1, 1.2],
+          x: [0, -40, 0],
+          y: [0, 30, 0],
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-[15%] -right-[15%] w-[70vw] h-[70vw] rounded-full bg-emerald-500/10 blur-[120px]"
+      />
+      {/* Blue Blob - Bottom Left */}
+      <motion.div
+        animate={{
+          scale: [1, 1.3, 1],
+          x: [0, 50, 0],
+          y: [0, -40, 0],
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -bottom-[20%] -left-[15%] w-[80vw] h-[80vw] rounded-full bg-blue-600/10 blur-[140px]"
+      />
+      {/* Yellow/Orange Blob - Bottom Right */}
+      <motion.div
+        animate={{
+          scale: [1.3, 1, 1.3],
+          x: [0, -30, 0],
+          y: [0, -20, 0],
+        }}
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -bottom-[10%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-amber-400/10 blur-[90px]"
+      />
+      
+      {/* Center Shimmer */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#050505_100%)] opacity-40" />
+      
+      {/* Noise Texture for that premium feel */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
     </div>
   );
 };
@@ -381,7 +412,8 @@ export default function App() {
     playerOName: 'Bot',
     winningLine: null,
     isBotThinking: false,
-    directionSet: 'compass'
+    directionSet: 'compass',
+    fontSize: 'standard'
   });
 
   const [inputValue, setInputValue] = useState('');
@@ -392,12 +424,27 @@ export default function App() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settingsHighlight, setSettingsHighlight] = useState<'category' | 'directions' | null>(null);
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const directionsRef = useRef<HTMLDivElement>(null);
   const [showHints, setShowHints] = useState(true);
   
   const socketRef = useRef<Socket | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Prevent scroll when modal is open
+  useEffect(() => {
+    if (showSettings && settingsHighlight) {
+      const timer = setTimeout(() => {
+        if (settingsHighlight === 'category' && categoryRef.current) {
+          categoryRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else if (settingsHighlight === 'directions' && directionsRef.current) {
+          directionsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [showSettings, settingsHighlight]);
+
   useEffect(() => {
     if (showTutorial || showSettings) {
       document.body.style.overflow = 'hidden';
@@ -664,6 +711,28 @@ export default function App() {
     }
   }, [gameState.currentPlayer, gameState.opponent, gameState.winner, gameState.botDifficulty, gameState.board, gameState.moves, gameState.mode, targetItems]);
 
+  useEffect(() => {
+    // Apply global font scaling to the html element
+    const scale = gameState.fontSize === 'large' ? '120%' : 
+                  gameState.fontSize === 'extra-large' ? '150%' : '100%';
+    document.documentElement.style.fontSize = scale;
+  }, [gameState.fontSize]);
+
+  const resetToDefaults = () => {
+    setGameState(prev => ({
+      ...prev,
+      mode: 'standard',
+      opponent: 'bot',
+      botDifficulty: 'medium',
+      category: 'colors',
+      directionSet: 'compass',
+      playerXName: 'Player X',
+      playerOName: 'Bot',
+      fontSize: 'standard',
+    }));
+    resetLocalGame();
+  };
+
   const resetLocalGame = () => {
     setGameState(prev => ({ 
       ...prev, 
@@ -689,18 +758,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-white/20 relative overflow-hidden flex flex-col items-center p-4 md:p-8">
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-white/20 relative overflow-hidden flex flex-col items-center p-4 md:p-8 transition-all duration-300">
       {/* Full-page background with soft radial glows to prevent color banding */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] max-w-[800px] max-h-[800px] bg-blue-500/5 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] max-w-[800px] max-h-[800px] bg-purple-500/5 blur-[120px] rounded-full" />
-        
-        {/* Slowly moving category icons background */}
-        {gameState.category === 'colors' ? (
-          <WavyBackground colors={targetItems.flat().map(item => item.hex || '#FFFFFF')} />
-        ) : (
-          <>
-            <div className="absolute top-1/4 left-0 w-full overflow-hidden whitespace-nowrap opacity-5 pointer-events-none">
+      <AtmosphericBackground />
+      
+      {/* Slowly moving category icons background */}
+      {gameState.category !== 'colors' && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <div className="absolute top-1/4 left-0 w-full overflow-hidden whitespace-nowrap opacity-5 pointer-events-none">
               <motion.div 
                 key={`bg-row-1-${gameState.category}`}
                 animate={{ x: [0, -1000] }}
@@ -741,15 +806,21 @@ export default function App() {
                 })}
               </motion.div>
             </div>
-          </>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Google-Style Header */}
       <header className="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-10">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-[#DADCE0] flex items-center justify-center text-[#007AFF]">
-            <LucideGrid3X3 size={32} />
+          <div className="w-16 h-16 bg-[#1a1a1a] rounded-2xl shadow-md border border-white/20 flex items-center justify-center text-white overflow-hidden">
+            <img 
+              src={logo} 
+              alt="Logo" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = LOGO_URL;
+              }}
+            />
           </div>
           <div className="flex flex-col">
             <h1 className="text-2xl font-medium tracking-tight text-white">
@@ -812,7 +883,7 @@ export default function App() {
                 <LucideSettings size={22} />
               </button>
             </Tooltip>
-            <Tooltip text={t.newGame}>
+            <Tooltip text={t.newGame} position="right">
               <button onClick={resetGame} className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white">
                 <LucideRotateCcw size={22} />
               </button>
@@ -824,16 +895,45 @@ export default function App() {
       {/* Settings Modal */}
       <AnimatePresence>
         {showSettings && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={() => setShowSettings(false)}>
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-black/80 backdrop-blur-xl border border-white/10 w-full max-w-md max-h-[85vh] overflow-y-auto p-6 md:p-8 rounded-3xl shadow-2xl" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-medium text-white">{t.settings}</h2>
-                <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/50"><LucideX size={20} /></button>
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end md:items-center justify-center p-0 md:p-4" 
+            onClick={() => setShowSettings(false)}
+          >
+            <motion.div 
+              initial={{ y: "100%" }} 
+              animate={{ y: 0 }} 
+              exit={{ y: "100%" }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-[#1a1a1a] border-t md:border border-white/10 w-full max-w-md max-h-[90vh] overflow-hidden rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl relative flex flex-col" 
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Sticky Header with Handle */}
+              <div className="sticky top-0 bg-[#1a1a1a] z-20 flex flex-col border-b border-white/10 shadow-lg">
+                <div className="w-full flex justify-center pt-3 pb-1 md:hidden">
+                  <div className="w-10 h-1 bg-white/20 rounded-full" />
+                </div>
+                <div className="px-6 py-4 flex justify-between items-center">
+                  <h2 className="text-xl font-bold text-white tracking-tight">{t.settings}</h2>
+                  <button 
+                    onClick={() => setShowSettings(false)} 
+                    className="w-9 h-9 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full transition-all text-white/70 hover:text-white"
+                  >
+                    <LucideX size={18} />
+                  </button>
+                </div>
               </div>
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+
+              {/* Scrollable Content */}
+              <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                <div className="grid grid-cols-2 gap-4 pt-2">
                   <div>
-                    <label className="text-[10px] font-bold uppercase text-white/60 mb-2 block">{t.player} X {t.name}</label>
+                    <div className="flex items-center gap-2 mb-2">
+                      <LucideUser size={14} className="text-[#007AFF]" />
+                      <label className="text-[0.625rem] font-bold uppercase text-white/60">{t.player} X {t.name}</label>
+                    </div>
                     <input 
                       type="text" 
                       value={gameState.playerXName} 
@@ -842,7 +942,10 @@ export default function App() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold uppercase text-white/60 mb-2 block">{t.player} O {t.name}</label>
+                    <div className="flex items-center gap-2 mb-2">
+                      <LucideUser size={14} className="text-[#007AFF]" />
+                      <label className="text-[0.625rem] font-bold uppercase text-white/60">{t.player} O {t.name}</label>
+                    </div>
                     <input 
                       type="text" 
                       value={gameState.playerOName} 
@@ -852,8 +955,11 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
-                  <label className="text-xs font-bold uppercase text-white/60">{t.showHints}</label>
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-2">
+                    <LucideHelpCircle size={14} className="text-[#007AFF]" />
+                    <label className="text-xs font-bold uppercase text-white/60">{t.showHints}</label>
+                  </div>
                   <button 
                     onClick={() => setShowHints(!showHints)}
                     className={`w-12 h-6 rounded-full transition-all relative ${showHints ? 'bg-[#007AFF]' : 'bg-white/10'}`}
@@ -866,7 +972,10 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold uppercase text-white/60 mb-2 block">{t.changeOpponent}</label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <LucideUser size={14} className="text-[#007AFF]" />
+                    <label className="text-xs font-bold uppercase text-white/60 block">{t.changeOpponent}</label>
+                  </div>
                   <div className="flex gap-2">
                     {(['human', 'bot' /*, 'online'*/] as const).map(o => (
                       <button 
@@ -880,8 +989,9 @@ export default function App() {
                           }));
                           resetLocalGame();
                         }}
-                        className={`flex-1 py-3 rounded-xl text-xs font-bold uppercase transition-all border ${gameState.opponent === o ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
+                        className={`flex-1 py-3 rounded-xl text-xs font-bold uppercase transition-all border flex items-center justify-center gap-2 ${gameState.opponent === o ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
                       >
+                        {o === 'human' ? <LucideUsers size={14} /> : <LucideBot size={14} />}
                         {o === 'human' ? t.friend : o === 'bot' ? t.bot : t.online}
                       </button>
                     ))}
@@ -896,7 +1006,10 @@ export default function App() {
                       exit={{ opacity: 0, height: 0, marginTop: 0 }}
                       className="overflow-hidden"
                     >
-                      <label className="text-xs font-bold uppercase text-white/60 mb-2 block">{t.difficulty}</label>
+                      <div className="flex items-center gap-2 mb-2">
+                        <LucideBrain size={14} className="text-[#007AFF]" />
+                        <label className="text-xs font-bold uppercase text-white/60 block">{t.difficulty}</label>
+                      </div>
                       <div className="flex gap-2">
                         {(['easy', 'medium', 'hard'] as const).map(d => (
                           <button 
@@ -912,14 +1025,17 @@ export default function App() {
                   )}
                 </AnimatePresence>
 
-                <div className={`p-4 rounded-2xl transition-all duration-500 ${settingsHighlight === 'directions' ? 'ring-4 ring-blue-500/30 bg-blue-500/10 -mx-4' : ''}`}>
-                  <label className="text-xs font-bold uppercase text-white/60 mb-2 block">{t.directions}</label>
+                <div ref={directionsRef} className={`transition-all duration-500 rounded-2xl ${settingsHighlight === 'directions' ? 'ring-2 ring-[#007AFF]/50 bg-[#007AFF]/10 p-3 -mx-3' : ''}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <LucideCompass size={14} className="text-[#007AFF]" />
+                    <label className="text-xs font-bold uppercase text-white/60 block">{t.directions}</label>
+                  </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {(['compass', 'simple', 'adventure', 'regions', 'family', 'solar', 'body', 'weather', 'emotions', 'time', 'elements', 'chess'] as const).map(set => (
                       <button 
                         key={set} 
                         onClick={() => setGameState(p => ({ ...p, directionSet: set }))}
-                        className={`px-3 py-2 rounded-xl border text-[10px] font-bold uppercase transition-all ${gameState.directionSet === set ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
+                        className={`px-3 py-3 rounded-xl border text-[0.625rem] font-bold uppercase transition-all ${gameState.directionSet === set ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
                       >
                         {t.directionSetNames[set]}
                       </button>
@@ -927,33 +1043,77 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className={`p-4 rounded-2xl transition-all duration-500 ${settingsHighlight === 'category' ? 'ring-4 ring-blue-500/30 bg-blue-500/10 -mx-4' : ''}`}>
-                  <label className="text-xs font-bold uppercase text-white/60 mb-2 block">{t.category}</label>
-                  <div className="grid grid-cols-2 gap-2">
+                <div ref={categoryRef} className={`transition-all duration-500 rounded-2xl ${settingsHighlight === 'category' ? 'ring-2 ring-[#007AFF]/50 bg-[#007AFF]/10 p-3 -mx-3' : ''}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <LucideLayers size={14} className="text-[#007AFF]" />
+                    <label className="text-xs font-bold uppercase text-white/60 block">{t.category}</label>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {(Object.keys(CATEGORIES) as CategoryType[]).map(cat => (
                       <button 
                         key={cat} 
                         onClick={() => { setGameState(p => ({ ...p, category: cat })); resetLocalGame(); }}
-                        className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase transition-all ${gameState.category === cat ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
+                        className={`px-3 py-3 rounded-xl border text-[0.625rem] font-bold uppercase transition-all ${gameState.category === cat ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
                       >
                         {t.categoryNames[cat]}
                       </button>
                     ))}
                   </div>
                 </div>
+
                 <div>
-                  <label className="text-xs font-bold uppercase text-white/60 mb-2 block">{t.mode}</label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <IconAAA size={14} className="text-[#007AFF]" />
+                    <label className="text-xs font-bold uppercase text-white/60 block">{t.fontSize}</label>
+                  </div>
+                  <div className="flex gap-2">
+                    {(['standard', 'large', 'extra-large'] as const).map(size => (
+                      <button 
+                        key={size} 
+                        onClick={() => setGameState(p => ({ ...p, fontSize: size }))}
+                        className={`flex-1 py-3 rounded-xl text-[0.625rem] font-bold uppercase transition-all border flex items-center justify-center gap-2 ${gameState.fontSize === size ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
+                      >
+                        <IconAAA size={size === 'standard' ? 10 : size === 'large' ? 14 : 18} />
+                        {size === 'standard' ? t.standardSize : size === 'large' ? t.largeSize : t.extraLargeSize}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <LucideZap size={14} className="text-[#007AFF]" />
+                    <label className="text-xs font-bold uppercase text-white/60 block">{t.mode}</label>
+                  </div>
                   <div className="flex gap-2">
                     {(['standard', '3-limit'] as const).map(m => (
                       <button 
                         key={m} 
                         onClick={() => { setGameState(p => ({ ...p, mode: m })); resetLocalGame(); }}
-                        className={`flex-1 py-3 rounded-xl text-xs font-bold uppercase transition-all border ${gameState.mode === m ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
+                        className={`flex-1 py-3 rounded-xl text-xs font-bold uppercase transition-all border flex items-center justify-center gap-2 ${gameState.mode === m ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
                       >
+                        {m === 'standard' ? <LucideGrid3X3 size={14} /> : <LucideZap size={14} />}
                         {m === 'standard' ? t.standard : t.limit3}
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/10 grid grid-cols-2 gap-2">
+                  <button 
+                    onClick={resetToDefaults}
+                    className="py-3 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-2xl font-bold text-[0.625rem] uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-2"
+                  >
+                    <LucideRefreshCcw size={14} />
+                    {t.resetToDefault}
+                  </button>
+                  <button 
+                    onClick={resetToDefaults}
+                    className="py-3 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-2xl font-bold text-[0.625rem] uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-2"
+                  >
+                    <LucideGrid3X3 size={14} />
+                    {t.defaultSize}
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -982,7 +1142,7 @@ export default function App() {
                   <div className="w-16 h-16 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center mb-4 group-hover:border-[#007AFF] transition-colors">
                     <LucideGrid3X3 size={32} className="text-[#007AFF]" />
                   </div>
-                  <h3 className="text-white font-bold mb-2 uppercase tracking-widest text-[10px] opacity-50">1. {t.tutorial.step1Title}</h3>
+                  <h3 className="text-white font-bold mb-2 uppercase tracking-widest text-[0.625rem] opacity-50">1. {t.tutorial.step1Title}</h3>
                   <p className="text-sm text-white/70 leading-relaxed">{t.tutorial.step1Text}</p>
                 </div>
 
@@ -991,7 +1151,7 @@ export default function App() {
                   <div className="w-16 h-16 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center mb-4 group-hover:border-[#34C759] transition-colors">
                     <LucideZap size={32} className="text-[#34C759]" />
                   </div>
-                  <h3 className="text-white font-bold mb-2 uppercase tracking-widest text-[10px] opacity-50">2. {t.tutorial.step2Title}</h3>
+                  <h3 className="text-white font-bold mb-2 uppercase tracking-widest text-[0.625rem] opacity-50">2. {t.tutorial.step2Title}</h3>
                   <p className="text-sm text-white/70 leading-relaxed mb-4">{t.tutorial.step2Text}</p>
                   <div className="w-full bg-white/5 p-3 rounded-xl font-mono text-xs border border-white/10 text-[#34C759] font-bold">
                     &gt; {t.tutorial.example}
@@ -1003,7 +1163,7 @@ export default function App() {
                   <div className="w-16 h-16 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center mb-4 group-hover:border-[#FFCC00] transition-colors">
                     <LucideTrophy size={32} className="text-[#FFCC00]" />
                   </div>
-                  <h3 className="text-white font-bold mb-2 uppercase tracking-widest text-[10px] opacity-50">3. {t.tutorial.step3Title}</h3>
+                  <h3 className="text-white font-bold mb-2 uppercase tracking-widest text-[0.625rem] opacity-50">3. {t.tutorial.step3Title}</h3>
                   <p className="text-sm text-white/70 leading-relaxed">
                     {t.tutorial.step3Text}
                   </p>
@@ -1033,7 +1193,7 @@ export default function App() {
       {roomId && (
         <div className="w-full max-w-2xl mb-8 p-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl flex justify-between items-center shadow-xl relative z-10">
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold uppercase text-white/60">{t.onlineRoom}: {roomId}</span>
+            <span className="text-[0.625rem] font-bold uppercase text-white/60">{t.onlineRoom}: {roomId}</span>
             <span className="text-xs font-mono truncate max-w-[200px] md:max-w-md text-white/60">{window.location.href}</span>
           </div>
           <button onClick={() => { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="flex items-center gap-2 text-xs font-medium text-[#007AFF] hover:bg-white/5 px-4 py-2 rounded-full transition-colors">
@@ -1047,20 +1207,20 @@ export default function App() {
       <div className="w-full max-w-2xl grid grid-cols-2 gap-4 mb-8 relative z-10">
         <div className={`p-6 rounded-2xl border transition-all duration-300 ${gameState.currentPlayer === 'X' ? 'bg-white/10 border-[#007AFF] shadow-lg scale-105' : 'bg-white/5 border-white/5 opacity-40'}`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold uppercase text-white/60">{t.player} X</span>
+            <span className="text-[0.625rem] font-bold uppercase text-white/60">{t.player} X</span>
             <GoogleX className="w-4 h-4 text-[#007AFF]" />
           </div>
           <span className="text-xl font-medium text-white">{gameState.playerXName}</span>
         </div>
         <div className={`p-6 rounded-2xl border transition-all duration-300 ${gameState.currentPlayer === 'O' ? 'bg-white/10 border-[#FF3B30] shadow-lg scale-105' : 'bg-white/5 border-white/5 opacity-40'}`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold uppercase text-white/60">{t.player} O</span>
+            <span className="text-[0.625rem] font-bold uppercase text-white/60">{t.player} O</span>
             <div className="flex items-center gap-2">
               {gameState.isBotThinking && (
                 <motion.div 
                   animate={{ opacity: [0.4, 1, 0.4] }}
                   transition={{ duration: 1, repeat: Infinity }}
-                  className="text-[8px] font-bold text-[#FF3B30] uppercase tracking-tighter"
+                  className="text-[0.5rem] font-bold text-[#FF3B30] uppercase tracking-tighter"
                 >
                   Thinking...
                 </motion.div>
@@ -1122,7 +1282,7 @@ export default function App() {
                 )}
 
                 {showHints && (
-                  <span className={`absolute top-1 left-1 text-[8px] md:text-[9px] font-bold uppercase font-mono z-10 leading-tight max-w-[80%] text-white px-1.5 py-0.5 bg-black/40 backdrop-blur-sm rounded-md border border-white/10`}>
+                  <span className={`absolute top-1 left-1 text-[0.5rem] md:text-[0.5625rem] font-bold uppercase font-mono z-10 leading-tight max-w-[80%] text-white px-1.5 py-0.5 bg-black/40 backdrop-blur-sm rounded-md border border-white/10`}>
                     {(() => {
                       const directions = DIRECTION_SETS[gameState.directionSet];
                       const key = Object.keys(directions).find(k => directions[k].r === r && directions[k].c === c);
@@ -1171,7 +1331,7 @@ export default function App() {
                       </div>
                       {showHints && (
                         <span 
-                          className="text-[10px] font-bold uppercase font-mono text-white px-2 py-1 rounded-md border border-white/20 shadow-lg"
+                          className="text-[0.625rem] font-bold uppercase font-mono text-white px-2 py-1 rounded-md border border-white/20 shadow-lg"
                           style={{ 
                             backgroundColor: cell.item.hex ? `${cell.item.hex}CC` : 'rgba(0,0,0,0.6)',
                             textShadow: '0 1px 2px rgba(0,0,0,0.5)'
@@ -1191,7 +1351,7 @@ export default function App() {
                     >
                       {showHints && (
                         <motion.div 
-                          className="text-[10px] font-bold uppercase font-mono opacity-0 group-hover:opacity-100 transition-opacity text-center px-2 py-1 bg-black/60 backdrop-blur-md rounded-md border border-white/10 text-white z-20 shadow-xl"
+                          className="text-[0.625rem] font-bold uppercase font-mono opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-center px-2 py-1 bg-black/60 backdrop-blur-md rounded-md border border-white/10 text-white z-20 shadow-xl"
                         >
                           {targetItems[r]?.[c]?.eesti}
                         </motion.div>
@@ -1346,7 +1506,7 @@ export default function App() {
             autoFocus
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-            <Tooltip text={t.helpText}>
+            <Tooltip text={t.helpText} position="right">
               <div className="p-2 text-white/30 hover:text-white/60 transition-colors cursor-help">
                 <LucideHelpCircle size={20} />
               </div>
@@ -1373,9 +1533,9 @@ export default function App() {
           <div className="grid grid-cols-3 gap-2">
             {Object.keys(DIRECTION_SETS[gameState.directionSet]).map(dir => (
               <div key={dir} className="p-2 bg-white/5 rounded-lg border border-white/10 flex flex-col items-center">
-                <span className="text-[10px] font-bold text-white">{dir}</span>
+                <span className="text-[0.625rem] font-bold text-white">{dir}</span>
                 {gameState.language !== 'est' && (
-                  <span className="text-[8px] text-white/40 uppercase">
+                  <span className="text-[0.5rem] text-white/40 uppercase">
                     {t.directionAbbreviations[dir as keyof typeof t.directionAbbreviations]}
                   </span>
                 )}
@@ -1398,7 +1558,7 @@ export default function App() {
                   <span className="font-medium text-white">{item.eesti}</span>
                 </div>
                 {gameState.language !== 'est' && (
-                  <span className="text-white/40 italic text-[10px]">
+                  <span className="text-white/40 italic text-[0.625rem]">
                     {gameState.language === 'rus' ? item.vene : item.english}
                   </span>
                 )}
@@ -1406,6 +1566,42 @@ export default function App() {
             ))}
           </div>
         </AccordionBox>
+      </div>
+
+      {/* Tutor CTA Banner */}
+      <div className="mt-16 w-full max-w-4xl relative overflow-hidden rounded-3xl p-1 z-10">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#007AFF] via-[#5856D6] to-[#FF2D55] opacity-20 animate-pulse" />
+        <div className="relative bg-[#1a1a1a]/80 backdrop-blur-xl rounded-[22px] border border-white/10 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+          <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
+            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-lg shrink-0">
+              <LucideGraduationCap size={28} className="text-white" />
+            </div>
+            <div className="flex flex-col text-left">
+              <h3 className="text-lg md:text-xl font-bold text-white mb-1">
+                {gameState.language === 'rus' ? 'Хотите выучить эстонский язык?' : 
+                 gameState.language === 'est' ? 'Soovid õppida eesti keelt?' : 
+                 'Want to learn Estonian?'}
+              </h3>
+              <p className="text-xs md:text-sm text-white/70 max-w-md">
+                {gameState.language === 'rus' ? 'Индивидуальные уроки с опытным преподавателем. Начните говорить уверенно!' : 
+                 gameState.language === 'est' ? 'Individuaaltunnid kogenud õpetajaga. Hakka kindlalt rääkima!' : 
+                 'Private lessons with an experienced tutor. Start speaking confidently!'}
+              </p>
+            </div>
+          </div>
+          <a 
+            href="mailto:partner.erik.egliens@gmail.com?subject=Estonian%20Language%20Lessons"
+            className="group relative px-6 py-3 md:py-4 bg-white text-black font-bold rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all shrink-0 w-full md:w-auto text-center flex justify-center"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+            <span className="relative flex items-center gap-2 text-sm md:text-base">
+              <LucideMail size={18} />
+              {gameState.language === 'rus' ? 'Связаться со мной' : 
+               gameState.language === 'est' ? 'Võta minuga ühendust' : 
+               'Contact Me'}
+            </span>
+          </a>
+        </div>
       </div>
 
       {/* Footer / Credentials */}
