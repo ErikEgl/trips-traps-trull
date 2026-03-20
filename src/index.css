@@ -6,6 +6,12 @@
     scrollbar-gutter: stable;
   }
 
+  .safari-paint-fix {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;

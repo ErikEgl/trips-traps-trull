@@ -763,14 +763,14 @@ export default function App() {
 
     if (currentTutorialStep.target === 'directions') {
       setSettingsHighlight('directions');
-      directionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      directionsRef.current?.scrollIntoView({ behavior: 'smooth', block: window.innerWidth < 768 ? 'start' : 'center' });
     } else if (currentTutorialStep.target === 'category') {
       setSettingsHighlight('category');
-      categoryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      categoryRef.current?.scrollIntoView({ behavior: 'smooth', block: window.innerWidth < 768 ? 'start' : 'center' });
     } else {
       setSettingsHighlight(null);
       if (currentTutorialStep.target === 'opponent') {
-        opponentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        opponentRef.current?.scrollIntoView({ behavior: 'smooth', block: window.innerWidth < 768 ? 'start' : 'center' });
       }
     }
   }, [currentTutorialStep.target, showTutorial]);
@@ -804,13 +804,14 @@ export default function App() {
       if (!element) return;
 
       const rect = element.getBoundingClientRect();
+      const isMobileViewport = window.innerWidth < 768;
       const desiredOffset = currentTutorialStep.target === 'board'
-        ? 96
+        ? (isMobileViewport ? 48 : 96)
         : currentTutorialStep.target === 'input'
-          ? 140
+          ? (isMobileViewport ? 56 : 140)
           : currentTutorialStep.target === 'donate'
-            ? 110
-            : 72;
+            ? (isMobileViewport ? 24 : 110)
+            : (isMobileViewport ? 32 : 72);
       const nextTop = Math.max(0, window.scrollY + rect.top - desiredOffset);
       window.scrollTo({ top: nextTop, behavior: 'smooth' });
     }
@@ -1192,7 +1193,7 @@ export default function App() {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-white/20 relative overflow-hidden flex flex-col items-center p-4 md:p-8 transition-all duration-300">
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-white/20 relative overflow-x-hidden flex flex-col items-center p-4 md:p-8 duration-300">
       {/* Full-page background with soft radial glows to prevent color banding */}
       <AtmosphericBackground lowPerformanceMode={isLowPerformanceMode} />
       
@@ -1244,7 +1245,7 @@ export default function App() {
       )}
 
       {/* Google-Style Header */}
-      <header className="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-10">
+      <header className="safari-paint-fix w-full max-w-4xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-10">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-white/20 flex items-center justify-center text-white overflow-hidden">
             <LogoIcon className="w-full h-full" />
@@ -1563,7 +1564,7 @@ export default function App() {
       {/* Tutorial Modal */}
       <AnimatePresence>
         {showTutorial && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] bg-black/65">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] bg-black/65" onClick={() => closeGuidedTour(true)}>
             {tutorialTargetRect && currentTutorialStep.target !== 'none' && (
               <div
                 className="pointer-events-none absolute rounded-[2rem] border-2 border-[#007AFF] shadow-[0_0_0_9999px_rgba(0,0,0,0.68),0_0_28px_rgba(0,122,255,0.55)]"
@@ -1582,6 +1583,7 @@ export default function App() {
               exit={{ opacity: 0, y: 16 }}
               className="fixed z-[74] max-h-[calc(100vh-1.5rem)] overflow-y-auto rounded-[2rem] border border-white/10 bg-[#101010] p-6 shadow-2xl"
               style={tutorialCardStyle}
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -1850,7 +1852,7 @@ export default function App() {
       </div>
 
       {/* Footer / Credentials */}
-      <footer className="mt-12 w-full max-w-4xl border-t border-[#DADCE0] pt-8 pb-12 flex flex-col items-center gap-6">
+      <footer className="safari-paint-fix mt-12 w-full max-w-4xl border-t border-[#DADCE0] pt-8 pb-12 flex flex-col items-center gap-6">
         <div className="flex flex-wrap justify-center gap-4">
           <a 
             ref={donateButtonRef}
