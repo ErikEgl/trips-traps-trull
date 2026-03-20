@@ -1,83 +1,101 @@
-# Eesti Risti-Rästi (Estonian Tic-Tac-Toe)
+# Eesti Risti-Rästi
 
-[![Deployed on GitHub Pages](https://img.shields.io/badge/Deployed_on-GitHub_Pages-blue?logo=github)](https://your-username.github.io/your-repo-name/)
+**Eesti Risti-Rästi** is a vocabulary-focused tic-tac-toe game for learning Estonian.  
+You do not claim a square by clicking it directly. Instead, you choose a square and type the **Estonian item name** plus the **Estonian position label** to make your move.
 
-**Eesti Risti-Rästi** is a modern, interactive Tic-Tac-Toe game designed to help you learn Estonian (along with English and Russian) vocabulary while playing. By typing colors, directions, and other categories in the target language, you claim your spots on the board!
+The interface itself can be shown in Estonian, English, or Russian, but the playable words on the board stay in **Estonian on purpose**. Translations are shown below the board in the legend.
 
-## ✨ Features
+## Features
 
-- **🌍 Language Learning**: Master vocabulary across multiple categories (Colors, Animals, Food, Tech, etc.) in Estonian, Russian, and English.
-- **🎮 3 Game Modes**:
-  - **Single Player**: Challenge a smart Bot with adjustable difficulty (Easy, Medium, Hard).
-  - **Local Multiplayer**: Play with a friend on the same device.
-  - **Online Multiplayer**: Create a room and play with friends remotely in real-time.
-- **🧠 Advanced Rules**: Toggle the "3-Piece Limit" (Infinite Tic-Tac-Toe) where only your 3 most recent moves stay on the board, adding a layer of deep strategy.
-- **🎨 Premium UI/UX**:
-  - Deep atmospheric dark mode with neon accents.
-  - Glassmorphism effects and tactile game board cells.
-  - Smooth, spring-based animations powered by Framer Motion.
-  - Fully responsive design for seamless play on mobile and desktop.
+- Estonian-first gameplay with English and Russian UI support
+- Guided onboarding tour on first launch, with replay from the info button
+- Bot play and same-device local multiplayer
+- Optional `3-limit` mode where only your latest 3 moves remain on the board
+- Multiple direction systems:
+  `compass`, `simple`, `adventure`, `regions`, `family`, `solar`, `body`, `weather`, `emotions`, `time`, `elements`, `chess`
+- Multiple vocabulary categories:
+  `colors`, `iphone`, `animals`, `fruits`, `vegetables`
+- Hint toggle for always-visible board labels
+- Mobile-oriented UX improvements and lighter rendering on lower-power devices
 
-## 🛠️ Tech Stack
+## Current Gameplay Model
 
-- **Frontend**: React 19, TypeScript, Vite
-- **Styling**: Tailwind CSS v4
-- **Animations**: Framer Motion
-- **Icons**: Lucide React
-- **Backend (Multiplayer)**: Node.js, Express, Socket.IO
+1. Pick a square on the board.
+2. Look at the item and its position label.
+3. Type both in Estonian.
+4. Either word order works.
 
-## 🚀 Getting Started
+Examples:
 
-### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm or yarn
+- `Punane Keskel`
+- `Keskel Punane`
 
-### Installation
+## Tech Stack
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/eesti-risti-rasti.git
-   cd eesti-risti-rasti
-   ```
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS v4
+- Motion (`motion/react`)
+- Lucide React
+- Express
+- Socket.IO
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## Local Development
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+### Frontend-only dev
 
-4. Open your browser and navigate to `http://localhost:3000`.
+If you only want the main UI, bot mode, and same-device multiplayer:
 
-## 🌐 Deployment (GitHub Pages)
+```bash
+npm install
+npm run dev
+```
 
-This project is fully compatible with GitHub Pages. Since it includes an Express/Socket.IO backend for online multiplayer, you might need to host the backend separately (e.g., on Render, Heroku, or Railway) and point your GitHub Pages frontend to it, or use it purely as a local/bot game when hosted statically.
+Then open `http://localhost:3000`.
 
-To deploy the frontend to GitHub Pages:
+### Full local server
 
-1. Build the project:
-   ```bash
-   npm run build
-   ```
-2. Deploy the `dist` folder to your `gh-pages` branch (you can use tools like the `gh-pages` npm package or GitHub Actions).
+If you want to run the Express + Socket.IO server locally:
 
-## 🎮 How to Play
+```bash
+npm install
+npx tsx server.ts
+```
 
-1. Choose your **Language** (Estonian, Russian, or English).
-2. Select a **Category** (e.g., Colors, Animals, Directions).
-3. To make a move, type the correct translation of the target word for the cell you want to claim.
-4. Get 3 in a row to win! (If the 3-piece limit is on, plan ahead—your oldest piece will vanish when you place your 4th!).
+This starts the app on `http://localhost:3000` with the custom server.
 
-## 🤝 Contributing
+## Scripts
 
-Contributions, issues, and feature requests are welcome! Feel free to open an issue or submit a pull request.
+- `npm run dev` - Vite dev server
+- `npm run build` - production build
+- `npm run preview` - preview built app
+- `npm run lint` - TypeScript type check
+- `npm run deploy` - deploy `dist` with `gh-pages`
 
-## 📝 License
+## Online Play Status
 
-This project is licensed under the MIT License.
+Socket.IO room support exists in the codebase and server, but **online play is not currently exposed as a normal selectable mode in the main settings UI**.
 
----
-*Enjoy learning while playing!*
+That means:
+
+- bot play works
+- same-device human play works
+- room-based online logic exists
+- the README should not treat online multiplayer as a finished primary UI flow right now
+
+## Deployment Notes
+
+Static hosting works for the frontend, but room-based multiplayer requires the Express + Socket.IO server to be hosted separately.
+
+For GitHub Pages or other static hosting:
+
+- the core frontend works
+- bot and local play work
+- socket-backed room play requires a separate backend deployment
+
+## Notes
+
+- The board labels stay in Estonian even when the UI language changes.
+- Translations are intentionally pushed into the lower legend to support learning rather than direct copying.
+- The project currently emphasizes guided learning, hinting, and mobile usability over raw arcade speed.
